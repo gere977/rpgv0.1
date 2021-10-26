@@ -18,10 +18,8 @@ public class Character {
     public Character() {
         hp = 10;
         strength = 5;
-        name = "default orc";
+        name = "default";
         armor = 5;
-        posX = 360;
-        posY = 360;
         try {
             image1 = ImageIO.read(new File("imgDark/orc.png"));
         } catch (IOException e) {

@@ -17,7 +17,7 @@ public class Chest {
 
     private void loadImage() {
         try {
-            image = ImageIO.read(new File("imgDark/chestLocked.png"));
+            image = ImageIO.read(new File("stardewAssets/rawSteak.png"));
         } catch (IOException exc) {
             System.out.println("Error opening image file: " + exc.getMessage());
         }

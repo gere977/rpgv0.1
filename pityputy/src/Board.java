@@ -9,16 +9,14 @@ import java.util.Random;
 public class Board extends JComponent implements KeyListener {
     private final int DELAY = 25;
     private Timer timer;
-     int testBoxX;
-     int testBoxY;
      Hero kiskacsa;
      ArrayList chests;
      Monster orc;
-     Monster orc1 = new Monster("zugzug");
      Random rnd = new Random();
 
+
     public Board() {
-        setPreferredSize(new Dimension(720, 720));
+        setPreferredSize(new Dimension(1440, 864));
         setVisible(true);
 
         kiskacsa = new Hero("kiskacsa");
@@ -40,21 +38,6 @@ public class Board extends JComponent implements KeyListener {
         collectChest();
         repaint();
     }
-//    @Override
-//    public void paint(Graphics graphics) {
-//        super.paint(graphics);
-//        drawFloorLevelOne(graphics);
-//        for (Chest chest : chestTest) {
-//            chest.draw(graphics, this);
-//        }
-//        kiskacsa.drawChar(graphics,this);
-//       //  PositionedImage kiskacsa = new PositionedImage("imgDark/kiskacsaTestCharacter.png",testBoxX,testBoxY);
-//       // kiskacsa.draw(graphics);
-//      //  kiskacsa.drawChar(graphics);
-//        //orc1.drawChar(graphics);
-//
-//        Toolkit.getDefaultToolkit().sync();
-//    }
     @Override
     public void paintComponent(Graphics graphics) {
         super.paintComponent(graphics);
@@ -65,7 +48,7 @@ public class Board extends JComponent implements KeyListener {
             ((Chest)chest).draw(graphics, this);
         }
         kiskacsa.drawChar(graphics,this);
-        orc.drawChar(graphics,this);
+      //  orc.drawChar(graphics,this);
 
         Toolkit.getDefaultToolkit().sync();
     }
@@ -80,13 +63,17 @@ public class Board extends JComponent implements KeyListener {
 
     }
     private ArrayList populateChests() {
+        Tile level1 = new Tile();
         ArrayList chestList = new ArrayList<>();
-        int numberOfChests = 5;
+        int numberOfChests = 15;
 
         for (int i = 0; i < numberOfChests; i++) {
-            int chestX = rnd.nextInt(10);
-            int chestY = rnd.nextInt(10);
-            chestList.add(new Chest(chestX, chestY));
+
+                int chestX = rnd.nextInt(20);
+                int chestY = rnd.nextInt(12);
+            if (level1.getMatrix()[chestY][chestX] != 1){
+                chestList.add(new Chest(chestX, chestY));
+            }
         }
 
         return chestList;
@@ -128,7 +115,7 @@ public class Board extends JComponent implements KeyListener {
 
     @Override
     public void keyReleased(KeyEvent e) {
-
+        kiskacsa.keyReleased(e);
     }
 
 }
