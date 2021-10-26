@@ -1,78 +1,75 @@
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Board extends JComponent implements KeyListener {
-
-    int testBoxX;
-    int testBoxY;
-    Graphics kiskacsaX;
-    Graphics kiskacsaY;
-    Random rnd = new Random();
+    private final int DELAY = 25;
+    private Timer timer;
+     int testBoxX;
+     int testBoxY;
+     Hero kiskacsa;
+     ArrayList chests;
+     Monster orc;
+     Monster orc1 = new Monster("zugzug");
+     Random rnd = new Random();
 
     public Board() {
-        testBoxX = 0;
-        testBoxY = 0;
-
-        // set the size of your draw board
         setPreferredSize(new Dimension(720, 720));
         setVisible(true);
+
+        kiskacsa = new Hero("kiskacsa");
+        orc = new Monster("orcZug");
+        chests = populateChests();
+
+        timer = new Timer(DELAY, this::actionPerformed);
+        timer.start();
     }
 
+   // @Override
+    public void actionPerformed(ActionEvent e) {
+        // this method is called by the timer every DELAY ms.
+        // use this space to update the state of your game or animation
+        // before the graphics are redrawn.
+
+        // prevent the player from disappearing off the board
+        kiskacsa.tick();
+        collectChest();
+        repaint();
+    }
+//    @Override
+//    public void paint(Graphics graphics) {
+//        super.paint(graphics);
+//        drawFloorLevelOne(graphics);
+//        for (Chest chest : chestTest) {
+//            chest.draw(graphics, this);
+//        }
+//        kiskacsa.drawChar(graphics,this);
+//       //  PositionedImage kiskacsa = new PositionedImage("imgDark/kiskacsaTestCharacter.png",testBoxX,testBoxY);
+//       // kiskacsa.draw(graphics);
+//      //  kiskacsa.drawChar(graphics);
+//        //orc1.drawChar(graphics);
+//
+//        Toolkit.getDefaultToolkit().sync();
+//    }
     @Override
-    public void paint(Graphics graphics) {
-        super.paint(graphics);
-       // floorDraw(graphics);
+    public void paintComponent(Graphics graphics) {
+        super.paintComponent(graphics);
         drawFloorLevelOne(graphics);
-      //  graphics.fillRect(testBoxX, testBoxY, 72, 72);
-        try {
-            BufferedImage img = ImageIO.read(new File("imgDark/kiskacsaTestCharacter.png"));
-            BufferedImage bi = new
-                    BufferedImage(72, 72, BufferedImage.TYPE_INT_ARGB);
-           // graphics.drawImage(img,0,0,null);
-            kiskacsaX = bi.getGraphics();
-           // kiskacsaX.drawImage(img,0,0,null);
-        } catch (IOException e) {
-            e.printStackTrace();
+      //  Chest chest = new Chest(6,6);
+          //  chest.draw(graphics, this);
+        for (Object chest : chests) {
+            ((Chest)chest).draw(graphics, this);
         }
-        PositionedImage kiskacsa = new PositionedImage("imgDark/kiskacsaTestCharacter.png",testBoxX,testBoxY);
-        kiskacsa.draw(graphics);
+        kiskacsa.drawChar(graphics,this);
+        orc.drawChar(graphics,this);
 
+        Toolkit.getDefaultToolkit().sync();
+    }
 
-    }
-    public void floorDraw(Graphics graphics) {
-        int boardSize = 10;
-        int squareSize = 72;
-        for (int row = 0; row < boardSize; row++) {
-            for (int col = 0; col < boardSize; col++) {
-                PositionedImage image = new PositionedImage("imgDark/floortilewithEDgeDarkv2.png",
-                        row * squareSize, col* squareSize);
-                image.draw(graphics);
-            }
-        }
-        PositionedImage imageDoorStart = new PositionedImage("imgDark/doorv0START.png",0,0);
-        imageDoorStart.draw(graphics);
-        drawWallFirst(graphics);
-    }
-    public void drawWallFirst(Graphics graphics) {
-        for (int i = 0; i < 6; i++) {
-            int rand = rnd.nextInt(2);
-            if (rand == 1) {
-                PositionedImage wallFirst = new PositionedImage("imgDark/wallBricks.png",72,i * 72);
-                wallFirst.draw(graphics);
-            } else {
-                PositionedImage wallFirst = new PositionedImage("imgDark/wallBrickSimple.png",72,i * 72);
-                wallFirst.draw(graphics);
-            }
-        }
-    }
     public void drawFloorLevelOne(Graphics graphics) {
         Floor floor = new Floor();
         Wall wall = new Wall();
@@ -82,9 +79,31 @@ public class Board extends JComponent implements KeyListener {
         objects.drawStartDoor(graphics);
 
     }
+    private ArrayList populateChests() {
+        ArrayList chestList = new ArrayList<>();
+        int numberOfChests = 5;
+
+        for (int i = 0; i < numberOfChests; i++) {
+            int chestX = rnd.nextInt(10);
+            int chestY = rnd.nextInt(10);
+            chestList.add(new Chest(chestX, chestY));
+        }
+
+        return chestList;
+    }
+    private void collectChest() {
+        ArrayList collectedChests = new ArrayList<>();
+        for (Object chest: chests) {
+            if (kiskacsa.getPos().equals(((Chest)chest).getPos())) {
+
+                collectedChests.add(chest);
+            }
+        }
+
+        chests.removeAll(collectedChests);
+    }
 
     public static void main(String[] args) {
-        // Here is how you set up a new window and adding our board to it
         JFrame frame = new JFrame("RPG Game");
         Board board = new Board();
         frame.add(board);
@@ -92,15 +111,10 @@ public class Board extends JComponent implements KeyListener {
         frame.setVisible(true);
         frame.pack();
         frame.setResizable(false);
-        // Here is how you can add a key event listener
-        // The board object will be notified when hitting any key
-        // with the system calling one of the below 3 methods
         frame.addKeyListener(board);
-        // Notice (at the top) that we can only do this
-        // because this Board class (the type of the board object) is also a KeyListener
+
     }
 
-    // To be a KeyListener the class needs to have these 3 methods in it
     @Override
     public void keyTyped(KeyEvent e) {
 
@@ -108,38 +122,12 @@ public class Board extends JComponent implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        Audio quack = new Audio();
-        if (e.getKeyCode() == KeyEvent.VK_UP) {
-            testBoxY -= 72;
-        } else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
-            testBoxY += 72;
-        }else if(e.getKeyCode() == KeyEvent.VK_LEFT) {
-            testBoxX -= 72;
-        }
-        else if(e.getKeyCode() == KeyEvent.VK_RIGHT) {
-            testBoxX += 72;
-        }
-        // and redraw to have a new picture with the new coordinates
-        repaint();
+        kiskacsa.keyPressed(e);
 
     }
 
-    // But actually we can use just this one for our goals here
     @Override
     public void keyReleased(KeyEvent e) {
-        // When the up or down keys hit, we change the position of our box
-//        if (e.getKeyCode() == KeyEvent.VK_UP) {
-//            testBoxY -= 72;
-//        } else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
-//            testBoxY += 72;
-//        }else if(e.getKeyCode() == KeyEvent.VK_LEFT) {
-//            testBoxX -= 72;
-//        }
-//        else if(e.getKeyCode() == KeyEvent.VK_RIGHT) {
-//            testBoxX += 72;
-//        }
-//        // and redraw to have a new picture with the new coordinates
-//        repaint();
 
     }
 

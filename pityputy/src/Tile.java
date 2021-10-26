@@ -1,4 +1,5 @@
 public class Tile {
+
     protected int[][] matrix = new int[][]
             {
                     {0, 0, 0, 0, 1, 0, 0, 1, 0, 0},
@@ -13,5 +14,8 @@ public class Tile {
                     {0, 0, 0, 1, 1, 1, 0, 0, 0, 0},
 
             };
+    public int[][] getMatrix() {
+        return matrix;
+    }
 
 }
